@@ -42,6 +42,10 @@ public class Jugador {
         } 
     }
 
+    public Radar getRadar() {
+        return radar;
+    }
+
     public int[] getCantidadesJ() {
         return cantidadesJ;
     }
@@ -215,6 +219,10 @@ public class Jugador {
         return null;
     }
 
+    public boolean sePuedeDisparar(int pos){
+        return !(lDisparosB.stream().anyMatch(l -> l==pos)||lDisparosA.stream().anyMatch(l -> l==pos)||lHundidos.stream().anyMatch(l -> l==pos));
+    }
+
     public Barco barcoEnPos(int pos){
         Barco b = null;
         if(matrizJ.get(pos)=="a"){b = null;}
@@ -236,10 +244,7 @@ public class Jugador {
     }
 
     public ArrayList<String> usarRadar(int pos){
-        int j = 0;
-        if(nombre.equals("Jugador")){j = 1;}
-        else if(nombre.equals("Bot")){j = 0;}
-        radar.activarRadar(pos, j);
+        radar.activarRadar(pos, 1);
         ArrayList<String> m = radar.getMatriz();
         return m;
     }

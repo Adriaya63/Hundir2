@@ -654,6 +654,7 @@ public class Graficos extends JFrame implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		lCPU.stream().forEach(l->l.setBackground(Color.DARK_GRAY));
 		if (arg instanceof Object[]){
 			Object[] upd = (Object[]) arg;
 			if (upd[0] instanceof Integer){
@@ -693,7 +694,6 @@ public class Graficos extends JFrame implements Observer {
 					if((int)upd[2]==1){lJE = lE;}
 					if((int)upd[2]==2){lCE = lE;}
 				}
-
 				if(n==8){
 					seleccionado = null;
 					ArrayList<Integer> lH = (ArrayList<Integer>) upd[1];

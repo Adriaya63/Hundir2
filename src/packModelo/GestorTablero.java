@@ -163,12 +163,13 @@ public class GestorTablero extends Observable{
                 while(radar<12||radar%11==0){
                     radar = numRadom.nextInt(121);}
                 ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 0);
+                hecho = true;
                 setChanged();
                 notifyObservers(new Object[]{10,1,radar,m});
             }//Miquel,Edu,Oscar
             if(hecho){
                 System.out.println("-----------------TURNO CPU-----------------------");
-                int prob = numRadom.nextInt(100)-100;
+                int prob = numRadom.nextInt(100);
                 if(prob<=50){
                     int probArm = numRadom.nextInt(100);
                     if(probArm<75){ListaJugadores.getMLista().cambiarArma(0, 1);}
@@ -186,12 +187,14 @@ public class GestorTablero extends Observable{
                 //     int n = numRadom.nextInt(10);
                 //     if(!CPU.getmCPU().ponerEscudo(n)){disparCPU();}
                 // }
-                // else if(prob>80){
-                //     int radCPU = numRadom.nextInt(121);
-                //     while(radCPU<12||radCPU%11==0){
-                //         radCPU = numRadom.nextInt(121);}
-                //     if(!CPU.getmCPU().usarRadar(radCPU)){disparCPU();}
-                // }
+                else if(prob>50){
+                    int radar = numRadom.nextInt(121);
+                while(radar<12||radar%11==0){
+                    radar = numRadom.nextInt(121);}
+                ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 1);
+                setChanged();
+                notifyObservers(new Object[]{10,2,radar,m});
+                }
             } 
             // if(Jugador.getJugador().haPerdido()){gameOver=1;}
             // if(CPU.getmCPU().haPerdido()){gameOver=2;}
