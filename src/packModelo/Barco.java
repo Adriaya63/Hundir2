@@ -20,6 +20,10 @@ public abstract class Barco {
 		return lPosiciones;
 	}
 
+	public ArrayList<Integer> getlTocados() {
+		return lTocados;
+	}
+
 	public boolean tienePosicion(int pos) {	
 		boolean d =lPosiciones.stream().anyMatch(l->l==pos);
 		return d;
@@ -62,6 +66,8 @@ public abstract class Barco {
 
 	public void ponerEscudo() {
 		escudo = new Escudo();
+		System.out.println("Escudo creado "+lPosiciones);
+
 	}
 
 	public boolean tieneEscudo(){
@@ -71,6 +77,14 @@ public abstract class Barco {
 	public boolean tocarEscudo(){
 		if(escudo.reducirEscudo()){escudo=null;return true;}
 		return false;
+	}
+
+	public boolean posicionTocada(int pos){
+		return lTocados.stream().anyMatch(l->l==pos);
+	}
+
+	public void repararPosicion(int pos){
+		lTocados.remove(lTocados.indexOf(pos));
 	}
 	
 	

@@ -27,7 +27,7 @@ public class Bot extends Jugador{
         
     }
 
-    private void añadirObjetivo(int posRad, ArrayList<String> radar){
+    private void anadirObjetivo(int posRad, ArrayList<String> radar){
         if(radar.stream().anyMatch(l->l=="b")){
             for(int i=0;i<radar.size();i++){
                 if(i==0&&radar.get(i)=="b"){barcosObj.add(posRad-12);}
@@ -48,7 +48,7 @@ public class Bot extends Jugador{
         Radar radar = super.getRadar();
         radar.activarRadar(pos, 0);
         ArrayList<String> m = radar.getMatriz();
-        añadirObjetivo(pos,m);
+        anadirObjetivo(pos,m);
         return m;
     }
     @Override
@@ -70,6 +70,21 @@ public class Bot extends Jugador{
             }
         }
         return super.disparar(disp);
+    }
+
+    @Override
+    public boolean ponerEscudo(int pos) {
+        if (pos>=super.getlBarcosJ().size()){pos = super.getlBarcosJ().size()-1; }
+        Barco b = super.getlBarcosJ().get(pos);
+        boolean rdo = false;
+        if (b!=null){
+            if(!b.tieneEscudo()&&!b.estaTocado()){
+                b.ponerEscudo();
+                rdo = true;
+            }
+        }
+        return rdo;
+
     }
 
 }

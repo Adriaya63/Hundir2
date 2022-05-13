@@ -145,11 +145,12 @@ public class GestorTablero extends Observable{
     public void cambiarArma(int i){
         ListaJugadores.getMLista().cambiarArma(i,0);
     }
+    public void cambiarReparacion(int i){
+        ListaJugadores.getMLista().cambiarReparacion(i,0);
+    }
 
     public void turno(int metodo){
         if (colocados){
-            ArrayList<Integer> lD = null;
-            int n = 0;
             boolean hecho = false;
             System.out.println("-----------------TURNO JUGADOR-----------------------");
             if(metodo==1&&panel==2){
@@ -166,34 +167,55 @@ public class GestorTablero extends Observable{
                 hecho = true;
                 setChanged();
                 notifyObservers(new Object[]{10,1,radar,m});
+            }
+            else if(metodo==4&&panel==1){
+                Object[] rep = ListaJugadores.getMLista().repararBarco(indSelec, 0);
+                ArrayList<Integer> ld = (ArrayList<Integer>) rep[0];
+                if(ld.size()!=0){
+                    ArrayList<Integer> disp = (ArrayList<Integer>) rep[1];
+                    System.out.println("Disparos de vuelta: "+disp.size());
+                    disp.stream().forEach(l->dispPosibles.add(l));
+                    hecho = true;
+                    setChanged();
+                    notifyObservers(new Object[]{6,ld,2});
+                }  
             }//Miquel,Edu,Oscar
             if(hecho){
-                System.out.println("-----------------TURNO CPU-----------------------");
-                int prob = numRadom.nextInt(100);
-                if(prob<=50){
-                    int probArm = numRadom.nextInt(100);
-                    if(probArm<75){ListaJugadores.getMLista().cambiarArma(0, 1);}
-                    else if(probArm>=75){ListaJugadores.getMLista().cambiarArma(1, 1);}
-                    int dis = dispPosibles.get(numRadom.nextInt(dispPosibles.size()));
-                    Object[] res = ListaJugadores.getMLista().disparar(1, dis);
-                    ArrayList<Integer> ldis = (ArrayList<Integer>) res[1];
-                    for(int i=0;i<ldis.size();i++){
-                        int z = dispPosibles.indexOf(ldis.get(i));
-                        if(z!=-1&& (int)res[0]!=3){dispPosibles.remove(z);}   
+                boolean turnoCPU = false;
+                int prob = numRadom.nextInt(100)-100;
+                while(!turnoCPU){
+                    System.out.println("-----------------TURNO CPU-----------------------");
+                    if(prob<=50){
+                        int probArm = numRadom.nextInt(100);
+                        if(probArm<75){ListaJugadores.getMLista().cambiarArma(0, 1);}
+                        else if(probArm>=75){ListaJugadores.getMLista().cambiarArma(1, 1);}
+                        int dis = dispPosibles.get(numRadom.nextInt(dispPosibles.size()));
+                        Object[] res = ListaJugadores.getMLista().disparar(1, dis);
+                        ArrayList<Integer> ldis = (ArrayList<Integer>) res[1];
+                        for(int i=0;i<ldis.size();i++){
+                            int z = dispPosibles.indexOf(ldis.get(i));
+                            if(z!=-1&& (int)res[0]!=3){dispPosibles.remove(z);}   
+                        }
+                        actualizarDisparos(res, 2);
+                        turnoCPU = true;
                     }
-                    actualizarDisparos(res, 2);
-                }
-                // else if(prob>50&&prob<=80){
-                //     int n = numRadom.nextInt(10);
-                //     if(!CPU.getmCPU().ponerEscudo(n)){disparCPU();}
-                // }
-                else if(prob>50){
-                    int radar = numRadom.nextInt(121);
-                while(radar<12||radar%11==0){
-                    radar = numRadom.nextInt(121);}
-                ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 1);
-                setChanged();
-                notifyObservers(new Object[]{10,2,radar,m});
+                    else if(prob>50&&prob<=80){
+                        int n = numRadom.nextInt(10);
+                        turnoCPU = ListaJugadores.getMLista().ponerEscudo(n, 1);
+                        if(!turnoCPU){prob = 0;}
+                    }
+                    else if(prob>80){
+                        int radar = numRadom.nextInt(121);
+                        while(radar<12||radar%11==0){
+                        radar = numRadom.nextInt(121);}
+                        ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 1);
+                        if (m.size()!=0){
+                            turnoCPU=true;
+                            setChanged();
+                            notifyObservers(new Object[]{10,2,radar,m});
+                        }
+                        
+                    }
                 }
             } 
             // if(Jugador.getJugador().haPerdido()){gameOver=1;}

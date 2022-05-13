@@ -68,10 +68,16 @@ public class Graficos extends JFrame implements Observer {
 	private JPanel panel_5;
 	private JRadioButton rdBomba;
 	private JRadioButton rdMisil;
-	private JButton bdDisparar;
 	private final ButtonGroup buttonGroup_2 = new ButtonGroup();
+	private JRadioButton rdCompleta;
+	private JRadioButton rdParcial;
+	private final ButtonGroup buttonGroup_3 = new ButtonGroup();
+	private JPanel panel_6;
+	private JPanel panel_7;
+	private JButton bdDisparar;
 	private JButton bdEscudo;
 	private JButton bdRadar;
+	private JButton btnTienda;
 
 	// Atributos para actualizar
 	private JLabel seleccionado;
@@ -87,7 +93,9 @@ public class Graficos extends JFrame implements Observer {
 	private ArrayList<Integer> lCE;
 	private ArrayList<Integer> lJH;
 	private ArrayList<Integer> lCH;
-
+	private ArrayList<JLabel> lRadar;
+	private JButton bdReparacion;
+	
 
 	/**
 	 * Launch the application.
@@ -171,15 +179,16 @@ public class Graficos extends JFrame implements Observer {
 	private void colorearRadar(ArrayList<String> m, int pos, int t) {
 		if (m.size()!=0){
 			if(t==1){ //opción 1 Jugador
-				if (m.get(0)=="b"){lCPU.get(pos-12).setBackground(Color.ORANGE);}
-				if (m.get(1)=="b"){lCPU.get(pos-11).setBackground(Color.ORANGE);}
-				if (m.get(2)=="b"){lCPU.get(pos-10).setBackground(Color.ORANGE);}
-				if (m.get(3)=="b"){lCPU.get(pos-1).setBackground(Color.ORANGE);}
-				lCPU.get(pos).setBackground(Color.green);
-				if (m.get(5)=="b"){lCPU.get(pos+1).setBackground(Color.ORANGE);}
-				if (m.get(6)=="b"){lCPU.get(pos+10).setBackground(Color.ORANGE);}
-				if (m.get(7)=="b"){lCPU.get(pos+11).setBackground(Color.ORANGE);}
-				if (m.get(8)=="b"){lCPU.get(pos+12).setBackground(Color.ORANGE);}
+				if (m.get(0)=="b"){lCPU.get(pos-12).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos-12));}
+				if (m.get(1)=="b"){lCPU.get(pos-11).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos-11));}
+				if (m.get(2)=="b"){lCPU.get(pos-10).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos-10));}
+				if (m.get(3)=="b"){lCPU.get(pos-1).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos-1));}
+				lCPU.get(pos).setBackground(Color.GREEN);lRadar.add(lCPU.get(pos));
+				if (m.get(4)=="b"){lCPU.get(pos).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos));}
+				if (m.get(5)=="b"){lCPU.get(pos+1).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos+1));}
+				if (m.get(6)=="b"){lCPU.get(pos+10).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos+10));}
+				if (m.get(7)=="b"){lCPU.get(pos+11).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos+11));}
+				if (m.get(8)=="b"){lCPU.get(pos+12).setBackground(Color.ORANGE);lRadar.add(lCPU.get(pos+12));}
 			}
 			else if(t==2){ //opción 2 CPU
 				if (m.get(0)=="b"){lJug.get(pos-12).setBackground(Color.ORANGE);}
@@ -194,6 +203,9 @@ public class Graficos extends JFrame implements Observer {
 			}
 		}
 	}
+	private void borrarRadar(){
+		lRadar.forEach(l->l.setBackground(Color.DARK_GRAY));
+	}
 
 	private void  pintarGraficos() {
 		colorearMatriz(matrizJ, 1);		
@@ -204,10 +216,10 @@ public class Graficos extends JFrame implements Observer {
 		rbTxintxorro.setText("Txintxorro("+cant[3]+")");
 		lJA.stream().forEach(l-> lCPU.get(l).setBackground(Color.CYAN));
 		lCA.stream().forEach(l-> lJug.get(l).setBackground(Color.CYAN));
-		lJB.stream().forEach(l-> lCPU.get(l).setBackground(Color.LIGHT_GRAY));
-		lCB.stream().forEach(l-> lJug.get(l).setBackground(Color.LIGHT_GRAY));
 		lJE.stream().forEach(l-> lCPU.get(l).setBackground(Color.WHITE));
 		lCE.stream().forEach(l-> lJug.get(l).setBackground(Color.WHITE));
+		lJB.stream().forEach(l-> lCPU.get(l).setBackground(Color.LIGHT_GRAY));
+		lCB.stream().forEach(l-> lJug.get(l).setBackground(Color.LIGHT_GRAY));
 		lJH.stream().forEach(l-> lCPU.get(l).setBackground(Color.YELLOW));
 		lCH.stream().forEach(l-> lJug.get(l).setBackground(Color.YELLOW));
 		if(seleccionado!=null){seleccionado.setBackground(Color.GREEN);}
@@ -279,6 +291,7 @@ public class Graficos extends JFrame implements Observer {
 		matrizJ = new ArrayList<String>();
 		matrizCPU = new ArrayList<String>();
 		cant = new int[4];
+		lRadar = new ArrayList<JLabel>();
 		lJug = new ArrayList<JLabel>();
 		lCPU = new ArrayList<JLabel>();
 		lInd = new ArrayList<Integer>(); 
@@ -533,9 +546,9 @@ public class Graficos extends JFrame implements Observer {
 	private JPanel getPanel_3() {
 		if (panel_3 == null) {
 			panel_3 = new JPanel();
-			panel_3.add(getbdDisparar());
-			panel_3.add(getBdEscudo());
-			panel_3.add(getBdRadar());
+			panel_3.setLayout(new GridLayout(0, 1, 0, 0));
+			panel_3.add(getPanel_6());
+			panel_3.add(getPanel_7());
 		}
 		return panel_3;
 	}
@@ -551,6 +564,9 @@ public class Graficos extends JFrame implements Observer {
 	private JPanel getPanel_5() {
 		if (panel_5 == null) {
 			panel_5 = new JPanel();
+			panel_5.setLayout(new GridLayout(2, 1, 0, 0));
+			panel_5.add(getRdParcial());
+			panel_5.add(getRdCompleta());
 		}
 		return panel_5;
 	}
@@ -570,7 +586,41 @@ public class Graficos extends JFrame implements Observer {
 		}
 		return rdMisil;
 	}
-	private JButton getbdDisparar() {
+	
+	private JRadioButton getRdCompleta() {
+		if (rdCompleta == null) {
+			rdCompleta = new JRadioButton("Reparacion completa");
+			rdCompleta.addActionListener(getControler());
+			buttonGroup_3.add(rdCompleta);
+		}
+		return rdCompleta;
+	}
+	private JRadioButton getRdParcial() {
+		if (rdParcial == null) {
+			rdParcial = new JRadioButton("Reparacion parcial");
+			rdParcial.addActionListener(getControler());
+			buttonGroup_3.add(rdParcial);
+		}
+		return rdParcial;
+	}
+	private JPanel getPanel_6() {
+		if (panel_6 == null) {
+			panel_6 = new JPanel();
+			panel_6.add(getBdDisparar());
+			panel_6.add(getBdEscudo());
+			panel_6.add(getBdRadar());
+			panel_6.add(getBdReparacion());
+		}
+		return panel_6;
+	}
+	private JPanel getPanel_7() {
+		if (panel_7 == null) {
+			panel_7 = new JPanel();
+			panel_7.add(getBtnTienda());
+		}
+		return panel_7;
+	}
+	private JButton getBdDisparar() {
 		if (bdDisparar == null) {
 			bdDisparar = new JButton("Disparar");
 			bdDisparar.addActionListener(getControler());
@@ -590,6 +640,21 @@ public class Graficos extends JFrame implements Observer {
 			bdRadar.addActionListener(getControler());
 		}
 		return bdRadar;
+	}
+	private JButton getBtnTienda() {
+		if (btnTienda == null) {
+			btnTienda = new JButton("Tienda");
+			btnTienda.addActionListener(getControler());
+		}
+		return btnTienda;
+	}
+	
+	private JButton getBdReparacion() {
+		if (bdReparacion == null) {
+			bdReparacion = new JButton("Reparar");
+			bdReparacion.addActionListener(getControler());
+		}
+		return bdReparacion;
 	}
 
 	private Controler getControler(){
@@ -612,11 +677,14 @@ public class Graficos extends JFrame implements Observer {
 			if(e.getSource().equals(rbTxintxorro)){GestorTablero.getGestorTablero().setTipoBarco(4);}
 			if(e.getSource().equals(rdBomba)){GestorTablero.getGestorTablero().cambiarArma(0);}
 			if(e.getSource().equals(rdMisil)){GestorTablero.getGestorTablero().cambiarArma(1);}
+			if(e.getSource().equals(rdParcial)){GestorTablero.getGestorTablero().cambiarReparacion(0);}
+			if(e.getSource().equals(rdCompleta)){GestorTablero.getGestorTablero().cambiarReparacion(1);}
 			if(e.getSource().equals(bdColocar)){GestorTablero.getGestorTablero().visualizarBarco();}
 			if(e.getSource().equals(bdConfirmar)){GestorTablero.getGestorTablero().colocarBarco();}
 			if(e.getSource().equals(bdDisparar)) {GestorTablero.getGestorTablero().turno(1);}//turno(1)
 			if(e.getSource().equals(bdEscudo)) {GestorTablero.getGestorTablero().turno(2);}
 			if(e.getSource().equals(bdRadar)) {GestorTablero.getGestorTablero().turno(3);}
+			if(e.getSource().equals(bdReparacion)) {GestorTablero.getGestorTablero().turno(4);}
 		}
 	}
 
@@ -654,7 +722,6 @@ public class Graficos extends JFrame implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		lCPU.stream().forEach(l->l.setBackground(Color.DARK_GRAY));
 		if (arg instanceof Object[]){
 			Object[] upd = (Object[]) arg;
 			if (upd[0] instanceof Integer){
@@ -679,30 +746,31 @@ public class Graficos extends JFrame implements Observer {
 				if(n==5){
 					seleccionado = null;
 					ArrayList<Integer> lA = (ArrayList<Integer>) upd[1];
-					if((int)upd[2]==1){lJA = lA;}
+					if((int)upd[2]==1){lJA = lA;borrarRadar();}
 					if((int)upd[2]==2){lCA = lA;}
 				}
 				if(n==6){
 					seleccionado = null;
 					ArrayList<Integer> lB = (ArrayList<Integer>) upd[1];
-					if((int)upd[2]==1){lJB = lB;}
+					if((int)upd[2]==1){lJB = lB;borrarRadar();}
 					if((int)upd[2]==2){lCB = lB;}
 				}
 				if(n==7){
 					seleccionado = null;
 					ArrayList<Integer> lE = (ArrayList<Integer>) upd[1];
-					if((int)upd[2]==1){lJE = lE;}
+					if((int)upd[2]==1){lJE = lE;borrarRadar();}
 					if((int)upd[2]==2){lCE = lE;}
 				}
 				if(n==8){
 					seleccionado = null;
 					ArrayList<Integer> lH = (ArrayList<Integer>) upd[1];
-					if((int)upd[2]==1){lJH = lH;}
+					if((int)upd[2]==1){lJH = lH;borrarRadar();}
 					if((int)upd[2]==2){lCH = lH;}
 				}
 				pintarGraficos();
 				if(n==10){
 					int t = (int) upd[1];
+					if(t == 1){borrarRadar();}
 					int pos = (int) upd[2];
 					ArrayList<String> m = (ArrayList<String>) upd[3];
 					colorearRadar(m, pos, t);
@@ -719,7 +787,7 @@ public class Graficos extends JFrame implements Observer {
 		
 
 		
-
+	}
 
 		
 
@@ -735,7 +803,6 @@ public class Graficos extends JFrame implements Observer {
 		m = GestorTablero.getGestorTablero().getMatrizJ();
 		colorearDisparo(m);
 		*/
-	}
 	
 	
 }

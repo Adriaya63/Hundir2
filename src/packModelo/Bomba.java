@@ -14,6 +14,7 @@ public class Bomba implements Arma {
             if(b.tieneEscudo()){
                 n=3;
                 b.tocarEscudo();
+                ldis.add(pos);
             }
             else{
                 n=2;

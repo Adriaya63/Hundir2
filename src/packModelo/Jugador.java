@@ -12,6 +12,7 @@ public class Jugador {
     private ArrayList<Integer> lDisparosB, lDisparosA,lDEscudos,lEscudos;
     private int cantidadesJ[];
     private Arma cArma;
+    private Reparacion cReaparacion;
     private ArrayList<Integer> lHundidos;
     private int nEscudos,nRadar;
     private Radar radar;
@@ -29,7 +30,8 @@ public class Jugador {
         lHundidos = new ArrayList<Integer>();
         nEscudos = 2;nRadar = 6;
         cantidadesJ = new int[4];
-        cArma = new Bomba();        
+        cArma = new Bomba();
+        cReaparacion = new RepParcial();        
         for (int a=0;a<4;a++){cantidadesJ[a] = a+1;}
         String c;
         for (int i=0;i<11;i++){
@@ -40,6 +42,10 @@ public class Jugador {
                 matrizJ.add(c);
             }
         } 
+    }
+
+    public ArrayList<Barco> getlBarcosJ() {
+        return lBarcosJ;
     }
 
     public Radar getRadar() {
@@ -190,6 +196,9 @@ public class Jugador {
     public void setcArma(Arma a) {
         cArma = a;
     }
+    public void setcReparacion(Reparacion cReaparacion) {
+        this.cReaparacion = cReaparacion;
+    }
 
     public Object[] disparar(int pos){
         int j = 0;
@@ -219,6 +228,23 @@ public class Jugador {
         return null;
     }
 
+    public Object[] repararBarco(int pos){
+        int j = 0; 
+        Object[] ld = new Object[2];
+        if(nombre.equals("Jugador")){j = 1;}
+        else if(nombre.equals("Bot")){j = 0;}
+        Barco b = barcoEnPos(pos);
+        if (b!=null){
+            ld = cReaparacion.repararBarco(b,pos,j);
+        }
+        return ld;
+    }
+
+    public ArrayList<Integer> eliminarDisparo(int pos){
+        lDisparosB.remove(lDisparosB.indexOf(pos));
+        return lDisparosB;
+    }
+
     public boolean sePuedeDisparar(int pos){
         return !(lDisparosB.stream().anyMatch(l -> l==pos)||lDisparosA.stream().anyMatch(l -> l==pos)||lHundidos.stream().anyMatch(l -> l==pos));
     }
@@ -238,31 +264,35 @@ public class Jugador {
         boolean rdo = false;
         Barco b = barcoEnPos(pos);
         if (b!=null){
-            if(!b.tieneEscudo()&&!b.estaTocado()){b.ponerEscudo();}
+            if(!b.tieneEscudo()&&!b.estaTocado()){
+                b.ponerEscudo();
+                rdo = true;
+            }
         }
         return rdo;
     }
 
     public ArrayList<String> usarRadar(int pos){
         radar.activarRadar(pos, 1);
+        System.out.println("Usando radar en pos "+pos);
         ArrayList<String> m = radar.getMatriz();
         return m;
     }
 
     public ArrayList<String> mostrarRadar(int pos){
         ArrayList<String> rd = new ArrayList<String>();
-        añadirRadar(rd, pos-12);
-        añadirRadar(rd, pos-11);
-        añadirRadar(rd, pos-10);
-        añadirRadar(rd, pos-1);
-        añadirRadar(rd, pos);
-        añadirRadar(rd, pos+1);
-        añadirRadar(rd, pos+10);
-        añadirRadar(rd, pos+11);
-        añadirRadar(rd, pos+12);
+        anadirRadar(rd, pos-12);
+        anadirRadar(rd, pos-11);
+        anadirRadar(rd, pos-10);
+        anadirRadar(rd, pos-1);
+        anadirRadar(rd, pos);
+        anadirRadar(rd, pos+1);
+        anadirRadar(rd, pos+10);
+        anadirRadar(rd, pos+11);
+        anadirRadar(rd, pos+12);
         return rd;        
     }
-    private ArrayList<String> añadirRadar(ArrayList<String> m ,int pos){
+    private ArrayList<String> anadirRadar(ArrayList<String> m ,int pos){
         if(pos>11&&pos<=120&&pos%11!=0){
             m.add(matrizJ.get(pos));           
         }

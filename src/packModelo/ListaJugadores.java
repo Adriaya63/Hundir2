@@ -34,6 +34,10 @@ public class ListaJugadores{
         if(i==0) {lJugadores.get(j).setcArma(new Bomba());}
         else if(i==1) {lJugadores.get(j).setcArma(new Misil());}
     }
+    public void cambiarReparacion(int i,int j) {
+        if(i==0) {lJugadores.get(j).setcReparacion(new RepParcial());}
+        else if(i==1) {lJugadores.get(j).setcReparacion(new RepCompleta());}
+    }
     public Object[] disparar(int j,int pos){
         return lJugadores.get(j).disparar(pos);
     }
@@ -55,5 +59,14 @@ public class ListaJugadores{
     public ArrayList<String> mostrarRadar(int pos, int j){
         return lJugadores.get(j).mostrarRadar(pos);
     }
+
+    public Object[] repararBarco(int pos, int j){
+        return lJugadores.get(j).repararBarco(pos);
+    }
+
+    public ArrayList<Integer> eliminarDisparo(int pos, int j) {
+        return lJugadores.get(j).eliminarDisparo(pos);
+    }
+    
 
 }
