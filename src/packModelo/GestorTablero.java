@@ -23,7 +23,7 @@ public class GestorTablero extends Observable{
         for(int i=12;i<121;i++){if(i%11!=0){dispPosibles.add(i);}}
         colocados = false;
         gameOver=0;
-        iniciarJugador();
+        // iniciarJugador(); //Para automatizar la colocacion de barcos del jugador.
         iniciarCPU(); /* coje y vacia las cantidades y no te deja colocar ningun barco*/
         direccion = null;
         tipoBarco = 0;
@@ -155,8 +155,10 @@ public class GestorTablero extends Observable{
             System.out.println("-----------------TURNO JUGADOR-----------------------");
             if(metodo==1&&panel==2){
                 Object[] res = ListaJugadores.getMLista().disparar(0, indSelec);
-                actualizarDisparos(res,1);
-                hecho = true;   
+                if(res != null){
+                    actualizarDisparos(res,1);
+                    hecho = true;
+                }
             }
             else if(metodo==2&&panel==1){hecho = ListaJugadores.getMLista().ponerEscudo(indSelec, 0);}//Eneko, Adrian
             else if(metodo==3){
@@ -164,16 +166,18 @@ public class GestorTablero extends Observable{
                 while(radar<12||radar%11==0){
                     radar = numRadom.nextInt(121);}
                 ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 0);
-                hecho = true;
-                setChanged();
-                notifyObservers(new Object[]{10,1,radar,m});
+                if(m!= null){
+                    hecho = true;
+                    setChanged();
+                    notifyObservers(new Object[]{10,1,radar,m});
+                }
             }
             else if(metodo==4&&panel==1){
                 Object[] rep = ListaJugadores.getMLista().repararBarco(indSelec, 0);
+                ArrayList<Integer> disp = (ArrayList<Integer>) rep[1];
                 ArrayList<Integer> ld = (ArrayList<Integer>) rep[0];
-                if(ld.size()!=0){
-                    ArrayList<Integer> disp = (ArrayList<Integer>) rep[1];
-                    System.out.println("Disparos de vuelta: "+disp.size());
+                if(disp.size()!=0){
+                    System.out.println("Disparos de vuelta: "+disp);
                     disp.stream().forEach(l->dispPosibles.add(l));
                     hecho = true;
                     setChanged();
@@ -182,49 +186,93 @@ public class GestorTablero extends Observable{
             }//Miquel,Edu,Oscar
             if(hecho){
                 boolean turnoCPU = false;
-                int prob = numRadom.nextInt(100)-100;
+                int prob = numRadom.nextInt(100);
                 while(!turnoCPU){
                     System.out.println("-----------------TURNO CPU-----------------------");
-                    if(prob<=50){
+                    if(prob<=30){
                         int probArm = numRadom.nextInt(100);
                         if(probArm<75){ListaJugadores.getMLista().cambiarArma(0, 1);}
                         else if(probArm>=75){ListaJugadores.getMLista().cambiarArma(1, 1);}
                         int dis = dispPosibles.get(numRadom.nextInt(dispPosibles.size()));
                         Object[] res = ListaJugadores.getMLista().disparar(1, dis);
-                        ArrayList<Integer> ldis = (ArrayList<Integer>) res[1];
-                        for(int i=0;i<ldis.size();i++){
-                            int z = dispPosibles.indexOf(ldis.get(i));
-                            if(z!=-1&& (int)res[0]!=3){dispPosibles.remove(z);}   
+                        if (res != null){
+                            ArrayList<Integer> ldis = (ArrayList<Integer>) res[1];
+                            for(int i=0;i<ldis.size();i++){
+                                int z = dispPosibles.indexOf(ldis.get(i));
+                                if(z!=-1&& (int)res[0]!=3){dispPosibles.remove(z);}   
+                            }
+                            actualizarDisparos(res, 2);
+                            turnoCPU = true;
+                        }else{
+                            int compra = numRadom.nextInt(2);
+                            if(compra==1){
+                                if(Tienda.getTienda().comprarObjeto(1, 1)){
+                                    res = ListaJugadores.getMLista().disparar(1, dis);
+                                    if (res != null){
+                                        ArrayList<Integer> ldis = (ArrayList<Integer>) res[1];
+                                        for(int i=0;i<ldis.size();i++){
+                                            int z = dispPosibles.indexOf(ldis.get(i));
+                                            if(z!=-1&& (int)res[0]!=3){dispPosibles.remove(z);}   
+                                        }
+                                    actualizarDisparos(res, 2);
+                                    turnoCPU = true;
+                                    }
+                                }
+                            }
                         }
-                        actualizarDisparos(res, 2);
-                        turnoCPU = true;
                     }
-                    else if(prob>50&&prob<=80){
+                    else if(prob>30&&prob<=50){
                         int n = numRadom.nextInt(10);
                         turnoCPU = ListaJugadores.getMLista().ponerEscudo(n, 1);
-                        if(!turnoCPU){prob = 0;}
+                        if(!turnoCPU){
+                            prob = 0;
+                            int compra = numRadom.nextInt(2);
+                            if(compra==1){
+                                if(!Tienda.getTienda().comprarObjeto(2, 1)){
+                                    prob = 0;
+                                }
+                            }
+                        }
                     }
-                    else if(prob>80){
+                    else if(prob>50&&prob<=80){
                         int radar = numRadom.nextInt(121);
                         while(radar<12||radar%11==0){
                         radar = numRadom.nextInt(121);}
                         ArrayList<String> m = ListaJugadores.getMLista().usarRadar(radar, 1);
-                        if (m.size()!=0){
+                        if (m!=null){
                             turnoCPU=true;
                             setChanged();
                             notifyObservers(new Object[]{10,2,radar,m});
+                        }else{
+                            int compra = numRadom.nextInt(100);
+                            if(compra>=80){
+                                if(!Tienda.getTienda().comprarObjeto(3, 1)){
+                                    prob = 0;
+                                }
+                            }
                         }
-                        
+                    }   
+                    else if(prob>80){
+                        Object[] rep = ListaJugadores.getMLista().repararBarco(indSelec, 0);
+                        ArrayList<Integer> ld = (ArrayList<Integer>) rep[0];
+                        ArrayList<Integer> disp = (ArrayList<Integer>) rep[1];
+                        if(disp!=null){
+                            if(disp.size()!=0){
+                                System.out.println("Disparos de vuelta: "+disp.size());
+                                disp.stream().forEach(l->dispPosibles.add(l));
+                                turnoCPU = true;
+                                setChanged();
+                                notifyObservers(new Object[]{6,ld,2});
+                            }
+                        }else{prob = 0;}
                     }
                 }
             } 
-            // if(Jugador.getJugador().haPerdido()){gameOver=1;}
-            // if(CPU.getmCPU().haPerdido()){gameOver=2;}
-            // indSelec = 0;
-            // setChanged();
-            // notifyObservers();
-            // Jugador.getJugador().resetearRadar();
-            // CPU.getmCPU().resetearRadar();*/
+            int g = ListaJugadores.getMLista().buscarGanador();
+            if(g!=0){
+                setChanged();
+                notifyObservers(new Object[]{11,g});
+            }
         } 
     }
     private void actualizarDisparos(Object[] res,int j){
@@ -232,11 +280,11 @@ public class GestorTablero extends Observable{
             ArrayList<Integer> lD = null;
             int n = 0;  
             if((int)res[0]==1){lD = (ArrayList<Integer>) res[1];n = 5;}
-                    if((int)res[0]==2){lD = (ArrayList<Integer>) res[1];n = 6;}
-                    if((int)res[0]==3){lD = (ArrayList<Integer>) res[1];n = 7;}
-                    if((int)res[0]==4){lD = (ArrayList<Integer>) res[1];n = 8;}
-                    setChanged();
-                    notifyObservers(new Object[]{n,lD,j}); 
+            if((int)res[0]==2){lD = (ArrayList<Integer>) res[1];n = 6;}
+            if((int)res[0]==3){lD = (ArrayList<Integer>) res[1];n = 7;}
+            if((int)res[0]==4){lD = (ArrayList<Integer>) res[1];n = 8;}
+            setChanged();
+            notifyObservers(new Object[]{n,lD,j}); 
         }
                 
     }

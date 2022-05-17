@@ -14,6 +14,9 @@ public class RepParcial implements Reparacion {
             disp.add(pos);
             ld = ListaJugadores.getMLista().eliminarDisparo(pos, j);
         }
+        System.out.println("Reparacion:");
+        System.out.println(ld);
+        System.out.println(disp);
         return new Object[]{ld,disp};
     }
     

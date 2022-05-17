@@ -64,8 +64,8 @@ public abstract class Barco {
 		return hundido;
 	}
 
-	public void ponerEscudo() {
-		escudo = new Escudo();
+	public void ponerEscudo(Escudo e) {
+		escudo = e;
 		System.out.println("Escudo creado "+lPosiciones);
 
 	}

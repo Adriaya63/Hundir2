@@ -32,8 +32,9 @@ public class PantallaFinal extends JFrame {
 	 * Create the frame.
 	 */
 	public PantallaFinal(int g) {
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 800, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
 		getContentPane().add(getLblNewLabel(), BorderLayout.CENTER);
 		if(g==2) {lblNewLabel.setText("JUGADOR HA GANADO");}
 		else if(g==1) {lblNewLabel.setText("CPU HA GANADO");}

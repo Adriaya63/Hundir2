@@ -1,6 +1,8 @@
 package packModelo;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.print.DocFlavor.STRING;
@@ -9,26 +11,30 @@ public class Jugador {
     private String nombre;
     private ArrayList<Barco> lBarcosJ;
     private ArrayList<String> matrizJ;
-    private ArrayList<Integer> lDisparosB, lDisparosA,lDEscudos,lEscudos;
+    private ArrayList<Integer> lDisparosB, lDisparosA,lEscudos;
     private int cantidadesJ[];
     private Arma cArma;
     private Reparacion cReaparacion;
     private ArrayList<Integer> lHundidos;
-    private int nEscudos,nRadar;
+    private Queue<Escudo> nEscudos;
+    private Queue<Radar> nRadar;
+    private int nMisiles;
+    private Monedero monedero;
     private Radar radar;
-    private int posRad;
 
     public Jugador(String name){
         nombre = name;
+        nMisiles = 0;
+        monedero = new Monedero(50);
         radar = new Radar();
         matrizJ = new ArrayList<String>();
         lDisparosB = new ArrayList<Integer>();
         lDisparosA = new ArrayList<Integer>();
-        lDEscudos = new ArrayList<Integer>();
         lEscudos = new ArrayList<Integer>();
         lBarcosJ= new ArrayList<Barco>();
         lHundidos = new ArrayList<Integer>();
-        nEscudos = 2;nRadar = 6;
+        nEscudos = new LinkedList<Escudo>();
+        nRadar = new LinkedList<Radar>();
         cantidadesJ = new int[4];
         cArma = new Bomba();
         cReaparacion = new RepParcial();        
@@ -50,6 +56,10 @@ public class Jugador {
 
     public Radar getRadar() {
         return radar;
+    }
+
+    public Queue<Escudo> getnEscudos() {
+        return nEscudos;
     }
 
     public int[] getCantidadesJ() {
@@ -205,14 +215,16 @@ public class Jugador {
         if(nombre.equals("Jugador")){j = 1;}
         else if(nombre.equals("Bot")){j = 0;}
         if(!(lDisparosB.stream().anyMatch(l -> l==pos)||lDisparosA.stream().anyMatch(l -> l==pos)||lHundidos.stream().anyMatch(l -> l==pos))){  
-            Object[] o = cArma.disparar(pos,j);
+            Object[] o = cArma.disparar(pos,j,nMisiles);
             int n = (int) o[0];
             ArrayList<Integer> lpos = (ArrayList<Integer>) o[1];
+            if(cArma instanceof Misil&&n!=0){nMisiles-=1;}
             if(n==1){
                 lpos.stream().forEach(l->lDisparosA.add(l));
                 return new Object[]{1,lDisparosA,pos};
             }else if(n==2){
                 lpos.stream().forEach(l->lDisparosB.add(l));
+                monedero.modificarDinreo(10);
                 return new Object[]{2,lDisparosB,pos};
             }else if(n==3){
                 lpos.stream().forEach(l->lEscudos.add(l));
@@ -221,6 +233,7 @@ public class Jugador {
                 Barco b = ListaJugadores.getMLista().barcoPos(pos,j);
                 b.getLPosiciones().stream().forEach(l->lHundidos.add(l));
                 b.getLPosiciones().stream().forEach(l->lDisparosB.remove(l));
+                b.getLPosiciones().stream().forEach(l->monedero.modificarDinreo(5));
                 ListaJugadores.getMLista().eliminarHundido(b, j);
                 return new Object[]{4,lHundidos,pos};
             }
@@ -235,8 +248,25 @@ public class Jugador {
         else if(nombre.equals("Bot")){j = 0;}
         Barco b = barcoEnPos(pos);
         if (b!=null){
-            ld = cReaparacion.repararBarco(b,pos,j);
+            if(cReaparacion instanceof RepCompleta){
+                System.out.println("Reparando C");
+                int costo = 10*b.getlTocados().size();
+                if(monedero.puedeReducir(costo)){
+                    monedero.modificarDinreo(-costo);
+                    ld = cReaparacion.repararBarco(b,pos,j);
+                }
+            }
+            else if(cReaparacion instanceof RepParcial){
+                System.out.println("Reparando P");
+                if(monedero.puedeReducir(10)){
+                    monedero.modificarDinreo(-10);
+                    ld = cReaparacion.repararBarco(b,pos,j);
+                }
+            }
         }
+        System.out.println("Jugador:");
+        System.out.println(ld[0]);
+        System.out.println(ld[1]);
         return ld;
     }
 
@@ -252,7 +282,8 @@ public class Jugador {
     public Barco barcoEnPos(int pos){
         Barco b = null;
         if(matrizJ.get(pos)=="a"){b = null;}
-        else if(matrizJ.get(pos)=="b"){ b=lBarcosJ.stream().filter(l -> l.tienePosicion(pos)==true).collect(Collectors.toList()).get(0);}
+        else if(matrizJ.get(pos)=="b" && lBarcosJ.stream().anyMatch(l -> l.tienePosicion(pos)))
+        { b=lBarcosJ.stream().filter(l -> l.tienePosicion(pos)==true).collect(Collectors.toList()).get(0);}
         return b;
     }
 
@@ -263,9 +294,10 @@ public class Jugador {
     public boolean ponerEscudo(int pos){
         boolean rdo = false;
         Barco b = barcoEnPos(pos);
-        if (b!=null){
-            if(!b.tieneEscudo()&&!b.estaTocado()){
-                b.ponerEscudo();
+        if (b!=null ){
+            if(!b.tieneEscudo()&&!b.estaTocado()&&!nEscudos.isEmpty()){
+                Escudo e = nEscudos.remove();
+                b.ponerEscudo(e);
                 rdo = true;
             }
         }
@@ -273,9 +305,13 @@ public class Jugador {
     }
 
     public ArrayList<String> usarRadar(int pos){
-        radar.activarRadar(pos, 1);
-        System.out.println("Usando radar en pos "+pos);
-        ArrayList<String> m = radar.getMatriz();
+        ArrayList<String> m = null;
+        if(!nRadar.isEmpty()){
+            Radar rad = nRadar.remove();
+            rad.activarRadar(pos, 1);
+            System.out.println("Usando radar en pos "+pos);
+            m = rad.getMatriz();
+        }
         return m;
     }
 
@@ -299,4 +335,42 @@ public class Jugador {
         else{m.add("#");}
         return m;
     }
+
+    private void anadirObjeto(Object obj){
+        if (obj instanceof Escudo){
+            Escudo e = (Escudo) obj;
+            nEscudos.add(e);
+            System.out.println("Añadido escudo");
+        }else if(obj instanceof Radar){
+            Radar r = (Radar) obj;
+            nRadar.add(r);
+            System.out.println("Añadido radar");
+        }else if(obj instanceof Misil){
+            nMisiles += 1;
+            System.out.println("Añadido misil");
+        }
+    }
+
+    public boolean comprarObj(Object o, int precio){
+        if(monedero.puedeReducir(precio)){
+            monedero.modificarDinreo(-precio);
+            anadirObjeto(o);
+            
+            return true;
+        }
+        return false;
+    }
+
+    public int[] getCantidadObj(){
+        int e = nEscudos.size();
+        int r = nRadar.size();
+        int m = nMisiles;
+        int d = monedero.getDinero();
+        return new int[]{e,r,m,d};
+    }
+
+    public boolean haPerdido(){
+        return lBarcosJ.size()==0;
+    }
+    
 }

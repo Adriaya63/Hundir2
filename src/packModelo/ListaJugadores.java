@@ -67,6 +67,24 @@ public class ListaJugadores{
     public ArrayList<Integer> eliminarDisparo(int pos, int j) {
         return lJugadores.get(j).eliminarDisparo(pos);
     }
+
+    public boolean comprarObj(Object o, int precio, int j){
+        return lJugadores.get(j).comprarObj(o, precio);
+    }
+
+    public int[] getCantidadObj(int j){
+        return lJugadores.get(j).getCantidadObj();
+    }
+
+    public int buscarGanador(){
+        int rdo = 0;
+        for(int i=0;i<lJugadores.size();i++){
+            if(lJugadores.get(i).haPerdido()){
+                rdo = i+1;
+            }
+        }
+        return rdo;
+    }
     
 
 }

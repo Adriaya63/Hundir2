@@ -78,6 +78,7 @@ public class Graficos extends JFrame implements Observer {
 	private JButton bdEscudo;
 	private JButton bdRadar;
 	private JButton btnTienda;
+	private Badulake badulake;
 
 	// Atributos para actualizar
 	private JLabel seleccionado;
@@ -288,6 +289,7 @@ public class Graficos extends JFrame implements Observer {
 	public Graficos() {
 		GestorTablero.getGestorTablero().addObserver(this);
 		seleccionado = null;
+		badulake = new Badulake();
 		matrizJ = new ArrayList<String>();
 		matrizCPU = new ArrayList<String>();
 		cant = new int[4];
@@ -685,6 +687,7 @@ public class Graficos extends JFrame implements Observer {
 			if(e.getSource().equals(bdEscudo)) {GestorTablero.getGestorTablero().turno(2);}
 			if(e.getSource().equals(bdRadar)) {GestorTablero.getGestorTablero().turno(3);}
 			if(e.getSource().equals(bdReparacion)) {GestorTablero.getGestorTablero().turno(4);}
+			if(e.getSource().equals(btnTienda)) {badulake.actualizar();badulake.setVisible(true);}
 		}
 	}
 
@@ -780,6 +783,11 @@ public class Graficos extends JFrame implements Observer {
 					lJug.forEach(l->l.setBackground(Color.DARK_GRAY));
 					lInd = (ArrayList<Integer>) upd[1];
 					if(lInd.size()>0){lInd.forEach(l->lJug.get(l).setBackground(Color.GREEN));}
+				}
+				if(n==11){
+					int g = (int) upd[1];
+					PantallaFinal p = new PantallaFinal(g);
+					p.setVisible(true);
 				}
 			}
 		}

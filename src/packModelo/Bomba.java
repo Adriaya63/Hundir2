@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Bomba implements Arma {
 
     @Override
-    public Object[] disparar(int pos, int j) {
+    public Object[] disparar(int pos, int j, int nMisiles) {
         int n = 0;
         ArrayList<Integer> ldis = new ArrayList<Integer>();
         Barco b = ListaJugadores.getMLista().barcoPos(pos, j);
